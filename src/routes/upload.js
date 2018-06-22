@@ -3,7 +3,7 @@
 import express from 'express';
 import multer from 'multer';
 
-import auth from '../auth/middlewars.js';
+import auth from '../auth/middleware.js';
 import s3 from '../lib/s3.js';
 
 const uploadRouter = express.Router();
@@ -18,5 +18,12 @@ uploadRouter.post('/upload', auth, upload.any(), (req, res, next) => {
   let file = req.files[0];
   let key = `${file.filename}.${file.originalname}`;
 
-  return s3.upload(file.path, key);
+  return s3.upload(file.path, key)
+    .then(url => {
+      let output = {
+        url: url,
+      };
+      res.send(output);
+    })
+    .catch(next);
 });
